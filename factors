@@ -1,34 +1,58 @@
 #!/usr/bin/python3
-"""Module that factorize as many numbers as possible
- into a product of two smaller numbers."""
-from sys import argv
 
+import sys
+import time
 
-def factorize(value):
-    """"print a simple descomposition of an integer > 1"""
-    i = 2
+def factorize(num):
+    '''
+    Factorize a number into two smaller numbers.
+    Args:
+        num: Input integer.
+    Returns:
+        A tuple of two factors if the number is not a prime, or None if the number is prime.
+    '''
+    if num < 4:
+        return None
+    for divisor in range(2, int(num**0.5) + 1):
+        if num % divisor == 0:
+            return (divisor, num // divisor)
+    return None
 
-    if value < 2:
-        return
-    print()
-    print(value, "<- value-bef")
-    while value % i:
-        i += 1
-    print("{:.0f}={:.0f}*{:.0f}".format(value, value / i, i))
-    print(value, "<- value-aft")
-    print()
+if __name__ == "__main__":
+    '''
+    Read the input file containing natural numbers to factorize.
+    '''
+    if len(sys.argv) != 2:
+        print("Usage: factors <file>")
+        exit()
 
-if len(argv) != 2:
-    exit()
+    input_file = sys.argv[1]
 
-try:
-    with open(argv[1]) as file:
-        line = file.readline()
+    try:
+        with open(input_file, 'r') as file:
+            lines = file.readlines()
+    except FileNotFoundError:
+        print("File not found")
+        exit()
 
-        while line != "":
-            value = int(line.split('\n')[0])
-            factorize(value)
-            line = file.readline()
-except:
-    
-    pass
+    start_time = time.time()
+
+    '''
+    Iterate over each line (which contains one natural number per line)
+    and call the factorize function on each number.
+    If factorize returns a tuple of factors, print the factorization in the desired format.
+    '''
+    for line in lines:
+        num = int(line.strip())
+        factors = factorize(num)
+        if factors:
+            factor1, factor2 = factors
+            print(f"{num}={factor1}*{factor2}")
+
+        '''
+        Check if the elapsed time exceeds 5 seconds.
+        If it does, print an error message and exit.
+        '''
+        if time.time() - start_time > 5:
+            print("Time limit exceeded")
+            exit()
