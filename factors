@@ -1,58 +1,43 @@
-#!/usr/bin/python3
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
-import sys
-import time
+void factorize(unsigned long long n) {
+    unsigned long long i, p, q;
+    for (i = 2; i <= sqrt(n); i++) {
+        if (n % i == 0) {
+            p = i;
+            q = n / i;
+            printf("%llu=%llu*%llu\n", n, p, q);
+            return;
+        }
+    }
+}
 
-def factorize(num):
-    '''
-    Factorize a number into two smaller numbers.
-    Args:
-        num: Input integer.
-    Returns:
-        A tuple of two factors if the number is not a prime, or None if the number is prime.
-    '''
-    if num < 4:
-        return None
-    for divisor in range(2, int(num**0.5) + 1):
-        if num % divisor == 0:
-            return (divisor, num // divisor)
-    return None
+int main(int argc, char *argv[]) {
+    FILE *fp;
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    unsigned long long n;
 
-if __name__ == "__main__":
-    '''
-    Read the input file containing natural numbers to factorize.
-    '''
-    if len(sys.argv) != 2:
-        print("Usage: factors <file>")
-        exit()
+    if (argc < 2) {
+        printf("Usage: factors <file>\n");
+        return 1;
+    }
+    fp = fopen(argv[1], "r");
+    if (fp == NULL) {
+        printf("Error: Could not open file '%s'\n", argv[1]);
+        return 1;
+    }
+    while ((read = getline(&line, &len, fp)) != -1) {
+        n = strtoull(line, NULL, 10);
+        factorize(n);
+    }
+    if (line) {
+        free(line);
+    }
+    fclose(fp);
+    return 0;
+}
 
-    input_file = sys.argv[1]
-
-    try:
-        with open(input_file, 'r') as file:
-            lines = file.readlines()
-    except FileNotFoundError:
-        print("File not found")
-        exit()
-
-    start_time = time.time()
-
-    '''
-    Iterate over each line (which contains one natural number per line)
-    and call the factorize function on each number.
-    If factorize returns a tuple of factors, print the factorization in the desired format.
-    '''
-    for line in lines:
-        num = int(line.strip())
-        factors = factorize(num)
-        if factors:
-            factor1, factor2 = factors
-            print(f"{num}={factor1}*{factor2}")
-
-        '''
-        Check if the elapsed time exceeds 5 seconds.
-        If it does, print an error message and exit.
-        '''
-        if time.time() - start_time > 5:
-            print("Time limit exceeded")
-            exit()
